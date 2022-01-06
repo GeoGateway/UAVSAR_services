@@ -13,9 +13,6 @@ class Config(object):
     # Enable protection agains *Cross-site Request Forgery (CSRF)*
     WTF_CSRF_ENABLED = True
     
-    #setup metadata
-    METADATA = os.path.join(BASE_DIR,"Data","metadata.geojson")
-
     @staticmethod
     def init_app(app):
         pass
@@ -25,6 +22,8 @@ class ProductionConfig(Config):
 
 class DevelopmentConfig(Config):
     """Statement for enabling the development environment"""
+    #setup metadata
+    #METADATA = os.path.join(BASE_DIR,"Data","metadata.geojson")
     DEBUG=True
 
 config = {
