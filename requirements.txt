@@ -1,3 +1,5 @@
 Flask>=2.0.0
 pandas
 geopandas
+# production
+mod_wsgi
