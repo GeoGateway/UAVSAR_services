@@ -26,3 +26,4 @@ def create_app():
         return "Python: {}<br>DebugMode: {}".format(info["python"],info["debugmode"])
  
     return app
+    
