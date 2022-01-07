@@ -21,9 +21,16 @@ def metadata_home():
 
     return jsonify(desc)
 
-@metadata.route('/<uid>')
-def dashboard(uid):
-   return jsonify(uid=uid)
+@metadata.route('/uid<int:uid>')
+def checkuid(uid):
+    metajson = current_app.config['METADATA']
+    data = load_metajson(metajson)
+    ob = data.loc[[uid]]
+    ob = ob.to_json()
+    response = current_app.response_class(response=ob,
+                                  status=200,
+                                  mimetype='application/json')
+    return response
 
 def check_metajson(metadata):
     """check metajson file"""
@@ -31,23 +38,26 @@ def check_metajson(metadata):
     if not os.path.exists(metadata):
         return "not found"
     
-    status = load_metajson(metadata)
+    status = load_metajson(metadata,checkstatus=True)
 
     return status
 
-def load_metajson(metadata):
+def load_metajson(metajson,checkstatus=False):
     """load metadata from .geojsonfile"""
 
-    feather = metadata.replace(".geojson",".feather")
+    feather = metajson.replace(".geojson",".feather")
     try:
         data = gpd.read_feather(feather)
     except FileNotFoundError:
         # feature is not found
         # load geosjon file and generate feather
-        data = gpd.read_file(metadata)
+        data = gpd.read_file(metajson)
         data.set_index("UID",inplace=True)
         data.to_feather(feather)
-        
-    numofrecord=len(data.index)
+    if checkstatus:
+        numofrecord=len(data.index)
+        return numofrecord
 
-    return numofrecord 
+    # normally it return the data
+    return data
+
