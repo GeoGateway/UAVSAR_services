@@ -45,7 +45,9 @@ def load_metajson(metadata):
         # feature is not found
         # load geosjon file and generate feather
         data = gpd.read_file(metadata)
+        data.set_index("UID",inplace=True)
         data.to_feather(feather)
-        return "load geojson file"
-    
-    return "load feather file"
+        
+    numofrecord=len(data.index)
+
+    return numofrecord 
