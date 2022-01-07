@@ -18,13 +18,16 @@ class Config(object):
         pass
 
 class ProductionConfig(Config):
+    DEVMODE=False
+    METADATA=os.path.join(BASE_DIR, 'Data/metadata.geojson'),
     pass
 
 class DevelopmentConfig(Config):
     """Statement for enabling the development environment"""
     #setup metadata
     #METADATA = os.path.join(BASE_DIR,"Data","metadata.geojson")
-    DEBUG=True
+    METADATA=os.path.join(BASE_DIR, 'Data/metadata.geojson'),
+    DEVMODE=True
 
 config = {
     'development': DevelopmentConfig,

@@ -2,17 +2,18 @@ import os,sys
 
 from flask import Flask
 from Config import config
-from Config import BASE_DIR
 
 from .metadata import metadata
 
 def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(
-        METADATA=os.path.join(BASE_DIR, 'Data/metadata.geojson'),
-    )
-    app.config.from_object(config)
+    
+    if app.debug:
+        app.config.from_object(config['development'])
+    else:
+        app.config.from_object(config['production'])
+
     # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)
