@@ -25,7 +25,11 @@ def metadata_home():
 def checkuid(uid):
     metajson = current_app.config['METADATA']
     data = load_metajson(metajson)
-    ob = data.loc[[uid]]
+    try:
+        ob = data.loc[[uid]]
+    except KeyError:
+        return {"UID":uid,"Status":"not found"}
+        
     ob = ob.to_json()
     response = current_app.response_class(response=ob,
                                   status=200,
@@ -52,7 +56,7 @@ def load_metajson(metajson,checkstatus=False):
         # feature is not found
         # load geosjon file and generate feather
         data = gpd.read_file(metajson)
-        data.set_index("UID",inplace=True)
+        data.set_index("UID",inplace=True,drop=False)
         data.to_feather(feather)
     if checkstatus:
         numofrecord=len(data.index)
