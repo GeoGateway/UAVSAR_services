@@ -9,6 +9,7 @@ import geopandas as gpd
 
 from flask import Blueprint
 from flask import current_app
+from flask import request
 
 metadata = Blueprint("metadata",__name__)
 
@@ -35,6 +36,31 @@ def checkuid(uid):
                                   status=200,
                                   mimetype='application/json')
     return response
+
+@metadata.route('/search')
+def search_metadata():
+    """ search metadata"""
+    geometry_str = request.args.get('geometry',default="")
+    name_str = request.args.get('flightname',default="")
+    date_str = request.args.get('eventdate',default="")
+
+    search_dict ={"geometry":geometry_str,"flightname":name_str,"eventdate":date_str}
+
+    if search_dict['geometry'] == "" and  search_dict['flightname'] == "":
+         search_dict["result"] = 0
+         return search_dict
+
+    search_result = search_uavsar(search_dict) 
+    search_dict["result"] = len(search_result)
+
+    if search_dict["result"] >0:
+        response = current_app.response_class(response=search_result.to_json(),
+                                  status=200,
+                                  mimetype='application/json')
+        return response
+
+    return search_dict
+
 
 def check_metajson(metadata):
     """check metajson file"""
@@ -65,3 +91,22 @@ def load_metajson(metajson,checkstatus=False):
     # normally it return the data
     return data
 
+def search_uavsar_flightname(sdata,flightname):
+    """search flight name"""
+    
+    # Dataname field
+
+    data = sdata.loc[sdata['Dataname'].str.contains(flightname,case=False)]
+    
+    return data
+
+def search_uavsar(searchdict):
+    """search UAVSAR """
+    metajson = current_app.config['METADATA']
+    # read all the search_data
+    searchdata = load_metajson(metajson)
+    # searchdict: geometry, flightname, eventname
+    if len(searchdict['flightname']) >=1:
+        searchdata = search_uavsar_flightname(searchdata,searchdict['flightname'])
+    
+    return searchdata
