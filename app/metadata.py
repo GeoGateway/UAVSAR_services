@@ -10,6 +10,7 @@ import geopandas as gpd
 from flask import Blueprint
 from flask import current_app
 from flask import request
+from shapely.geometry.polygon import orient
 
 metadata = Blueprint("metadata",__name__)
 
@@ -54,10 +55,10 @@ def search_metadata():
     search_dict["result"] = len(search_result)
 
     if search_dict["result"] >0:
-        response = current_app.response_class(response=search_result.to_json(),
-                                  status=200,
-                                  mimetype='application/json')
-        return response
+        df1 = pd.DataFrame(search_result.drop(columns='geometry'))
+        search_dict["data"]=df1.to_dict(orient="records")
+    else:
+        search_dict["data"]=""
 
     return search_dict
 
