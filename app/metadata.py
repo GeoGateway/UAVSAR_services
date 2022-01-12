@@ -7,7 +7,7 @@ import os
 import pandas as pd
 import geopandas as gpd
 
-from flask import Blueprint, jsonify
+from flask import Blueprint
 from flask import current_app
 
 metadata = Blueprint("metadata",__name__)
@@ -19,7 +19,7 @@ def metadata_home():
 
     desc = {"metadata":metajson, "status":status}
 
-    return jsonify(desc)
+    return desc
 
 @metadata.route('/uid<int:uid>')
 def checkuid(uid):
