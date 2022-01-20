@@ -3,7 +3,9 @@ metadata.py
     -- basic service for metadata 
 """
 
+from dataclasses import dataclass
 import os
+import numpy as np
 import pandas as pd
 import geopandas as gpd
 
@@ -47,7 +49,7 @@ def search_metadata():
 
     search_dict ={"geometry":geometry_str,"flightname":name_str,"eventdate":date_str}
 
-    if search_dict['geometry'] == "" and  search_dict['flightname'] == "":
+    if search_dict['geometry'] == "" and search_dict['flightname'] == "" and search_dict['eventdate'] == "":
          search_dict["result"] = 0
          return search_dict
 
@@ -137,16 +139,35 @@ def search_uavsar_geometry(sdata,gstr):
 
     return data
 
+def search_uavsar_eventdate(sdata,adatestr):
+    """search by event data"""
+
+    # eventdate format: YYYY-MM-DD
+    testdate = np.datetime64(adatestr)
+
+    # create a temporary dataframe
+    tempdf = pd.DataFrame()
+    tempdf["Time1"]=pd.to_datetime(sdata['Time1']).dt.tz_localize(None)
+    tempdf["Time2"]=pd.to_datetime(sdata['Time2']).dt.tz_localize(None)
+
+    mask = (tempdf['Time1']<testdate) & (tempdf['Time2']>testdate)
+    data = sdata.loc[mask]
+
+    return data
+
 def search_uavsar(searchdict):
     """search UAVSAR """
     metajson = current_app.config['METADATA']
     # read all the search_data
     searchdata = load_metajson(metajson)
-    # searchdict: geometry, flightname, eventname
+    # searchdict: geometry, flightname, eventdate
     if len(searchdict['flightname']) >=1:
         searchdata = search_uavsar_flightname(searchdata,searchdict['flightname'])
     
     if len(searchdict['geometry']) >=1:
         searchdata = search_uavsar_geometry(searchdata,searchdict['geometry'])
+
+    if len(searchdict['eventdate']) >=1:
+        searchdata = search_uavsar_eventdate(searchdata,searchdict['eventdate'])
         
     return searchdata
