@@ -13,16 +13,15 @@
 geometry: Point,Rectangle,Line,Polygon
 flightname: any string part in dataname
 eventdate: YYYYMMDD, the date between Time1 and Time2
-search return in json, the result is in "data"
 ```
-The return is in json format, "data" holds the records  
+"search" return in json, the result is in "data".  
 ```
 {
   "data": "", 
   "eventdate": "", 
   "flightname": "", 
   "geometry": "", 
-  "result": 0
+  "count": 0
 }
 ```
 Search samples

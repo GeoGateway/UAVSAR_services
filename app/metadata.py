@@ -52,9 +52,9 @@ def search_metadata():
          return search_dict
 
     search_result = search_uavsar(search_dict) 
-    search_dict["result"] = len(search_result)
+    search_dict["count"] = len(search_result)
 
-    if search_dict["result"] >0:
+    if search_dict["count"] >0:
         df1 = pd.DataFrame(search_result.drop(columns='geometry'))
         search_dict["data"]=df1.to_dict(orient="records")
     else:
