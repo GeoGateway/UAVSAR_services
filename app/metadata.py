@@ -101,7 +101,7 @@ def search_uavsar_flightname(sdata,flightname):
     
     return data
 
-def search_uavsar_geometry(sdata,geometry):
+def search_uavsar_geometry(sdata,gstr):
     """search by geometry"""
 
     # sample gemetry input
@@ -109,7 +109,31 @@ def search_uavsar_geometry(sdata,geometry):
     # Rectangle: ((33.343343561567, -118.69238281249999), (34.34703015733175, -117.04443359374999))
     # Line: (34.72713264415401, -119.37353515624999),(33.67311969894201, -117.76953124999999),(33.983418330994276, -116.20947265624999),(32.4021911686893, -116.91259765624999)
     # Polygon: (34.05626592724434, -117.59374999999999),(33.572488142047554, -118.38476562499999),(32.837100401791204, -117.25317382812499),(33.4809029903106, -116.73681640624999)
-    data = sdata
+    gtype,gcoord = gstr.split(":")
+    gtype = gtype.strip()
+    gcoord = eval(gcoord)
+    if gtype == "Point":
+        lat,lon = gcoord
+        geom = Point(lon,lat)
+    elif gtype == "Line":
+        lonlat = [(x[1],x[0]) for x in gcoord]
+        geom = LineString(lonlat)
+    elif gtype == "Polygon":
+        lonlat = [(x[1],x[0]) for x in gcoord]
+        geom = Polygon(lonlat)
+    elif gtype == "Rectangle":
+        lat0,lon0 = gcoord[0]
+        lat1,lon1 = gcoord[1]
+        lonlat = [(lon0,lat1), (lon0,lat0), (lon1,lat0), (lon1,lat1)]
+        geom = Polygon(lonlat)
+    else:
+        geom = None
+    
+    if geom:
+        data = sdata[sdata.intersects(geom)]
+    else:
+        # return empty dataframe
+        data = gpd.DataFrame(data=None, columns=sdata.columns)
 
     return data
 
