@@ -12,6 +12,8 @@ import geopandas as gpd
 from flask import Blueprint
 from flask import current_app
 from flask import request
+from flask import render_template
+
 from shapely.geometry import * 
 
 metadata = Blueprint("metadata",__name__)
@@ -38,6 +40,15 @@ def checkuid(uid):
                                   status=200,
                                   mimetype='application/json')
     return response
+@metadata.route('/view/uid<int:uid>')
+def viewentry(uid):
+    """view geojson for a uid"""
+    
+    ob = uid_record(uid)
+    if ob.empty:
+         return render_template("viewuid_norecord.html",uid=uid)
+
+    return render_template("viewuid.html",uid=uid,data=ob.to_json())
 
 @metadata.route('/search')
 def search_metadata():

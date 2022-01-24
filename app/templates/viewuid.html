@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{{ uid }}</title>
+        <style>
+            table {
+              font-family: arial, sans-serif;
+              border-collapse: collapse;
+              width: 80%;
+              table-layout: auto;
+            }
+            
+            td, th {
+              border: 1px solid #dddddd;
+              text-align: left;
+              padding: 8px;
+            }
+            
+            tr:nth-child(even) {
+              background-color: #dddddd;
+            }
+        </style>
+    </head>
+    <body>
+        <h2><span id="dataname"></span></h2>
+        <strong>Data Source: <a id='datasource' target='_blank' href="">JPL UAVSAR Portal</a></strong>
+        <br><br>
+        <table id='metadata'></table>
+    </body>
+    <script type="text/javascript">
+        var geojsondata = {{ data | safe }};
+        var metadata = geojsondata.features[0].properties;
+        document.title = metadata.Dataname; 
+        document.getElementById('dataname').innerHTML= metadata.Dataname;
+        document.getElementById('datasource').href= metadata.URL;
+        
+        append_table(metadata);
+
+        function append_table(metadata){
+            var table = document.getElementById('metadata');
+            Object.keys(metadata).forEach(function(key) {
+                var tr = document.createElement('tr');
+                var value = metadata[key];
+                if (key==="URL") {return;}
+                tr.innerHTML = '<td>' + key + '</td>' + '<td>' + value + '</td>';
+                table.appendChild(tr);
+            });
+        }
+    </script>
+</html>
