@@ -18,8 +18,9 @@ metadata = Blueprint("metadata",__name__)
 
 @metadata.route("/")
 def metadata_home():
-    metajson = current_app.config['METADATA']
-    status = check_metajson(metajson)
+
+    metajson = os.path.basename(get_metajson())
+    status = check_metajson()
 
     desc = {"metadata":metajson, "status":status}
 
@@ -27,12 +28,10 @@ def metadata_home():
 
 @metadata.route('/uid<int:uid>')
 def checkuid(uid):
-    metajson = current_app.config['METADATA']
-    data = load_metajson(metajson)
-    try:
-        ob = data.loc[[uid]]
-    except KeyError:
-        return {"UID":uid,"Status":"not found"}
+
+    ob = uid_record(uid)
+    if ob.empty:
+        return ({"UID":uid,"status":"not found"})
         
     ob = ob.to_json()
     response = current_app.response_class(response=ob,
@@ -64,20 +63,39 @@ def search_metadata():
 
     return search_dict
 
+def get_metajson():
+    """return metajson file"""
 
-def check_metajson(metadata):
+    metajson = current_app.config['METADATA']
+    
+    return metajson
+
+def check_metajson():
     """check metajson file"""
 
-    if not os.path.exists(metadata):
+    metajson = get_metajson()
+    if not os.path.exists(metajson):
         return "not found"
     
-    status = load_metajson(metadata,checkstatus=True)
+    status = load_metajson(checkstatus=True)
 
     return status
 
-def load_metajson(metajson,checkstatus=False):
+def uid_record(uid):
+    """return uid record"""
+
+    data = load_metajson()
+    try:
+        ob = data.loc[[uid]]
+    except KeyError:
+        return gpd.GeoDataFrame(data=None, columns=data.columns)
+    
+    return ob
+
+def load_metajson(checkstatus=False):
     """load metadata from .geojsonfile"""
 
+    metajson = get_metajson()
     feather = metajson.replace(".geojson",".feather")
     try:
         data = gpd.read_feather(feather)
@@ -135,7 +153,7 @@ def search_uavsar_geometry(sdata,gstr):
         data = sdata[sdata.intersects(geom)]
     else:
         # return empty dataframe
-        data = gpd.DataFrame(data=None, columns=sdata.columns)
+        data = gpd.GeoDataFrame(data=None, columns=sdata.columns)
 
     return data
 
