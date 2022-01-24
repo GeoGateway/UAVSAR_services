@@ -2,11 +2,17 @@
 <html lang="en">
     <head>
         <title>{{ uid }}</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+   crossorigin=""></script>
         <style>
             table {
               font-family: arial, sans-serif;
               border-collapse: collapse;
-              width: 80%;
+              width: 60%;
               table-layout: auto;
             }
             
@@ -19,12 +25,17 @@
             tr:nth-child(even) {
               background-color: #dddddd;
             }
+
+            #map { height: 300px; width:60%}
         </style>
     </head>
     <body>
         <h2><span id="dataname"></span></h2>
-        <strong>Data Source: <a id='datasource' target='_blank' href="">JPL UAVSAR Portal</a></strong>
+        <strong>Data Download: <a id='datasource' target='_blank' href="">JPL UAVSAR Portal</a></strong><br><br>
+        note: for the older dataset, download links may be not available. 
         <br><br>
+        <div id="map"></div>
+        <h3>Properties</h3>
         <table id='metadata'></table>
     </body>
     <script type="text/javascript">
@@ -33,7 +44,18 @@
         document.title = metadata.Dataname; 
         document.getElementById('dataname').innerHTML= metadata.Dataname;
         document.getElementById('datasource').href= metadata.URL;
-        
+        // setup map
+        var map = L.map('map').setView([34.05, -118], 9);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Map data: &copy; <a href=<a href="http://www.esri.com/">Esri</a>',
+            maxZoom: 18,
+            id: 'ArcGIS Topo Map',
+        }).addTo(map);
+        datalayer = L.geoJSON(geojsondata);
+        datalayer.addTo(map);
+        map.fitBounds(datalayer.getBounds());
+
+        // setup table
         append_table(metadata);
 
         function append_table(metadata){
