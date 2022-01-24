@@ -6,6 +6,10 @@
 /metadata
 /metadata/uid<int:uid>
 ```
+### View metadata
+```
+/metadata/view/uid1500
+```
 ### Search metadata 
 ```
 /metadata/search?[geometry | flightname | eventdate] 
