@@ -40,6 +40,7 @@ def checkuid(uid):
                                   status=200,
                                   mimetype='application/json')
     return response
+
 @metadata.route('/view/uid<int:uid>')
 def viewentry(uid):
     """view geojson for a uid"""
@@ -186,9 +187,10 @@ def search_uavsar_eventdate(sdata,adatestr):
 
 def search_uavsar(searchdict):
     """search UAVSAR """
-    metajson = current_app.config['METADATA']
+
     # read all the search_data
-    searchdata = load_metajson(metajson)
+    searchdata = load_metajson()
+
     # searchdict: geometry, flightname, eventdate
     if len(searchdict['flightname']) >=1:
         searchdata = search_uavsar_flightname(searchdata,searchdict['flightname'])
